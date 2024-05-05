@@ -126,7 +126,11 @@ namespace SbomFunctionApp
             if (licenses != null && (!licenses.Any() || licenses.Count != 1))
                 throw new Exception($"Unable to parse a license for {name} component");
             var license = (licenses?.FirstOrDefault() as JObject)?.GetValue("license") as JObject;
-            if (license != null && license.TryGetValue("id", out var licenseId))
+            if (license == null)
+            {
+                return "No license information found";
+            }
+            else if (license != null && license.TryGetValue("id", out var licenseId))
             {
                 return licenseId.ToString();
             }
