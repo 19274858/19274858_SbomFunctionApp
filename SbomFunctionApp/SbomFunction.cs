@@ -27,9 +27,9 @@ namespace SbomServices
                 ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
                 : $"Hello, {name}. This HTTP triggered function executed successfully.";
 
-            string jsonString = JsonSerializer.Serialize(responseMessage);
-            log.LogInformation("GenerateSbom request completed: {jsonString}", jsonString);
-            return new OkObjectResult(jsonString);
+            //string jsonString = JsonSerializer.Serialize(responseMessage);
+            //log.LogInformation("GenerateSbom request completed: {jsonString}", jsonString);
+            return new OkObjectResult(requestBody);
         }
     }
 }
