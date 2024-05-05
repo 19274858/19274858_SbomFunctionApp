@@ -106,7 +106,8 @@ namespace SbomFunctionApp
             }
 
             var vulnerabilityMetadata = package.Vulnerabilities;
-            var vulnerabilityObjects = vulnerabilityMetadata.Select(vulnerability => new PackageVulnerability(vulnerability));
+            var vulnerabilityObjects = vulnerabilityMetadata
+                .Select(vulnerability => new PackageVulnerability(vulnerability));
             var vulnerabilityJson = JsonSerializer.Serialize(vulnerabilityObjects);
             return vulnerabilityJson;
         }
@@ -165,34 +166,6 @@ namespace SbomFunctionApp
         public string Description { get; set; }
         public string ExternalReferences { get; set; }
     }
-
-    /// <summary>
-    /// "PackageReference": [
-    ///{
-    ///    "_Include": "JsonDiffer",
-    ///	"_Version": "1.0.1"
-    ///  },
-    ///  {
-    ///    "_Include": "Microsoft.EntityFrameworkCore",
-    ///	"_Version": "7.0.5"
-    ///  },
-    ///  {
-    ///    "_Include": "Pomelo.EntityFrameworkCore.MySql",
-    ///	"_Version": "7.0.0"
-    ///  }
-    ///]
-    /// </summary>
-    public class PackageReference
-    {
-        public string Include { get; set; }
-        public string Version { get; set; }
-    }
-
-
-    public class PackageReferences
-    {
-        public IEnumerable<PackageReference> PackageReference { get; set; }
-    }
     /// <summary>
     /// 
     /// </summary>
@@ -200,7 +173,8 @@ namespace SbomFunctionApp
     {
         public PackageVulnerability(PackageVulnerabilityMetadata packageVulnerabilityMetadata)
         {
-            Url = packageVulnerabilityMetadata.AdvisoryUrl;
+            Href = $"<a href=\"{packageVulnerabilityMetadata.AdvisoryUrl}\">{packageVulnerabilityMetadata.AdvisoryUrl}</a>";
+            //Url = packageVulnerabilityMetadata.AdvisoryUrl;
             Severity = packageVulnerabilityMetadata.Severity;
         }
 
@@ -208,7 +182,9 @@ namespace SbomFunctionApp
         {
 
         }
-        public Uri Url { get; set; }
+        //public Uri Url { get; set; }
+        public string Href { get; set; }
+
         /// <summary>
         /// 1. Low: Generally, these are less severe issues, and mitigations might be available without much effort.
         /// 2. Medium: These issues have a moderate impact and might require some attention.It's essential to address them but may not be as urgent as higher-severity issues.
