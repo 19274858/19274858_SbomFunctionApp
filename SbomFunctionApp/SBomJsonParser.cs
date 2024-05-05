@@ -173,8 +173,8 @@ namespace SbomFunctionApp
     {
         public PackageVulnerability(PackageVulnerabilityMetadata packageVulnerabilityMetadata)
         {
-            Href = $"<a href=\"{packageVulnerabilityMetadata.AdvisoryUrl}\">{packageVulnerabilityMetadata.AdvisoryUrl}</a>";
-            //Url = packageVulnerabilityMetadata.AdvisoryUrl;
+            //Href = $"<a href=\"{packageVulnerabilityMetadata.AdvisoryUrl}\">{packageVulnerabilityMetadata.AdvisoryUrl}</a>";
+            Url = packageVulnerabilityMetadata.AdvisoryUrl;
             Severity = packageVulnerabilityMetadata.Severity;
         }
 
@@ -182,8 +182,8 @@ namespace SbomFunctionApp
         {
 
         }
-        //public Uri Url { get; set; }
-        public string Href { get; set; }
+        public Uri Url { get; set; }
+        //public string Href { get; set; }
 
         /// <summary>
         /// 1. Low: Generally, these are less severe issues, and mitigations might be available without much effort.
