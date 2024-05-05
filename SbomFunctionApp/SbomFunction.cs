@@ -10,10 +10,10 @@ using Newtonsoft.Json;
 
 namespace SbomServices
 {
-    public static class Function1
+    public static class SbomFunction
     {
-        [FunctionName("Function1")]
-        public static async Task<IActionResult> Run(
+        [FunctionName("GenerateSbom")]
+        public static async Task<IActionResult> GenerateSbom(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
