@@ -92,7 +92,7 @@ namespace SbomFunctionApp
 
             return latestStableVersion?.Version.ToString();
         }
-        private static string GetPackageVulnerabilityInfo(string packageName, string packageVersion, string nuGetUrl)
+        private static IEnumerable<PackageVulnerabilityMetadata> GetPackageVulnerabilityInfo(string packageName, string packageVersion, string nuGetUrl)
         {
             var nugetRepository = Repository.Factory.GetCoreV3(nuGetUrl);
             var packageMetadataResource = nugetRepository.GetResource<PackageMetadataResource>();
@@ -100,16 +100,7 @@ namespace SbomFunctionApp
                 .GetMetadataAsync(packageName, true, true, new SourceCacheContext(), NuGet.Common.NullLogger.Instance, CancellationToken.None).Result;
             var package = metadata.FirstOrDefault(p => p.Identity.Version.ToString() == packageVersion);
 
-            if (package == null || package.Vulnerabilities == null || !package.Vulnerabilities.Any())
-            {
-                return string.Empty;
-            }
-
-            var vulnerabilityMetadata = package.Vulnerabilities;
-            var vulnerabilityObjects = vulnerabilityMetadata
-                .Select(vulnerability => new PackageVulnerability(vulnerability));
-            var vulnerabilityJson = JsonSerializer.Serialize(vulnerabilityObjects);
-            return vulnerabilityJson;
+            return package?.Vulnerabilities;
         }
 
         private string GetExternalReferences(JObject sBomComponent)
@@ -126,12 +117,12 @@ namespace SbomFunctionApp
             var licenses = sBomComponent.GetValue("licenses") as JArray;
             if (licenses != null && (!licenses.Any() || licenses.Count != 1))
                 throw new Exception($"Unable to parse a license for {name} component");
-            var license = (licenses?.FirstOrDefault() as JObject)?.GetValue("license") as JObject;
-            if (license == null)
+
+            if ((licenses?.FirstOrDefault() as JObject)?.GetValue("license") is not JObject license)
             {
                 return "No license information found";
             }
-            else if (license != null && license.TryGetValue("id", out var licenseId))
+            else if (license.TryGetValue("id", out var licenseId))
             {
                 return licenseId.ToString();
             }
@@ -142,7 +133,7 @@ namespace SbomFunctionApp
                     PropertyNameCaseInsensitive = true,
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
-                var yourObject = JsonSerializer.Deserialize<License>(license?.ToString()??string.Empty, options);
+                var yourObject = JsonSerializer.Deserialize<License>(license.ToString(), options);
 
                 return $"{yourObject.Name}, {yourObject.Url}";
             }
@@ -162,35 +153,8 @@ namespace SbomFunctionApp
         public string LicenseType { get; set; }
         public string LastStableVersion { get; set; }
         public string UsedVersion { get; set; }
-        public string VulnerabilityInfo { get; set; }
+        public IEnumerable<PackageVulnerabilityMetadata> VulnerabilityInfo { get; set; }
         public string Description { get; set; }
         public string ExternalReferences { get; set; }
-    }
-    /// <summary>
-    /// 
-    /// </summary>
-    public class PackageVulnerability
-    {
-        public PackageVulnerability(PackageVulnerabilityMetadata packageVulnerabilityMetadata)
-        {
-            //Href = $"<a href=\"{packageVulnerabilityMetadata.AdvisoryUrl}\">{packageVulnerabilityMetadata.AdvisoryUrl}</a>";
-            Url = packageVulnerabilityMetadata.AdvisoryUrl;
-            Severity = packageVulnerabilityMetadata.Severity;
-        }
-
-        public PackageVulnerability()
-        {
-
-        }
-        public Uri Url { get; set; }
-        //public string Href { get; set; }
-
-        /// <summary>
-        /// 1. Low: Generally, these are less severe issues, and mitigations might be available without much effort.
-        /// 2. Medium: These issues have a moderate impact and might require some attention.It's essential to address them but may not be as urgent as higher-severity issues.
-        /// 3. High: High-severity issues are more critical and can have a significant impact on the security of the package.Prompt attention and remediation are usually necessary.
-        /// 4. Critical: These are the most severe vulnerabilities.They pose a serious risk to the security of the package, and immediate action is required to address them.
-        /// </summary>
-        public int Severity { get; set; }
     }
 }
