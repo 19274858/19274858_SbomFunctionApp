@@ -101,7 +101,7 @@ namespace SbomFunctionApp
                 .GetMetadataAsync(packageName, true, true, new SourceCacheContext(), NuGet.Common.NullLogger.Instance, CancellationToken.None).Result;
             var package = metadata.FirstOrDefault(p => p.Identity.Version.ToString() == packageVersion);
 
-            return package?.Vulnerabilities.Select(x=>new PackageVulnerability(x));
+            return package?.Vulnerabilities?.Select(x=>new PackageVulnerability(x));
         }
 
         private string GetExternalReferences(JObject sBomComponent)
