@@ -93,7 +93,7 @@ namespace SbomFunctionApp
 
             return latestStableVersion?.Version.ToString();
         }
-        private static IEnumerable<PackageVulnerability> GetPackageVulnerabilityInfo(string packageName, string packageVersion, string nuGetUrl)
+        private static IEnumerable<string> GetPackageVulnerabilityInfo(string packageName, string packageVersion, string nuGetUrl)
         {
             var nugetRepository = Repository.Factory.GetCoreV3(nuGetUrl);
             var packageMetadataResource = nugetRepository.GetResource<PackageMetadataResource>();
@@ -101,7 +101,7 @@ namespace SbomFunctionApp
                 .GetMetadataAsync(packageName, true, true, new SourceCacheContext(), NuGet.Common.NullLogger.Instance, CancellationToken.None).Result;
             var package = metadata.FirstOrDefault(p => p.Identity.Version.ToString() == packageVersion);
 
-            return package?.Vulnerabilities?.Select(x=>new PackageVulnerability(x));
+            return package?.Vulnerabilities?.Select(x=>x.AdvisoryUrl.ToString());
         }
 
         private string GetExternalReferences(JObject sBomComponent)
@@ -154,31 +154,31 @@ namespace SbomFunctionApp
         public string LicenseType { get; set; }
         public string LastStableVersion { get; set; }
         public string UsedVersion { get; set; }
-        public IEnumerable<PackageVulnerability> VulnerabilityInfo { get; set; }
+        public IEnumerable<string> VulnerabilityInfo { get; set; }
         public string Description { get; set; }
         public string ExternalReferences { get; set; }
     }
 
-    public class PackageVulnerability
-    {
-        public PackageVulnerability(PackageVulnerabilityMetadata packageVulnerabilityMetadata)
-        {
-            AdvisoryUrl = packageVulnerabilityMetadata.AdvisoryUrl;
-            Severity = packageVulnerabilityMetadata.Severity;
-        }
+    //public class PackageVulnerability
+    //{
+    //    public PackageVulnerability(PackageVulnerabilityMetadata packageVulnerabilityMetadata)
+    //    {
+    //        AdvisoryUrl = packageVulnerabilityMetadata.AdvisoryUrl;
+    //        Severity = packageVulnerabilityMetadata.Severity;
+    //    }
 
-        public PackageVulnerability()
-        {
+    //    public PackageVulnerability()
+    //    {
 
-        }
-        public Uri AdvisoryUrl { get; set; }
+    //    }
+    //    public Uri AdvisoryUrl { get; set; }
 
-        /// <summary>
-        /// 1. Low: Generally, these are less severe issues, and mitigations might be available without much effort.
-        /// 2. Medium: These issues have a moderate impact and might require some attention.It's essential to address them but may not be as urgent as higher-severity issues.
-        /// 3. High: High-severity issues are more critical and can have a significant impact on the security of the package.Prompt attention and remediation are usually necessary.
-        /// 4. Critical: These are the most severe vulnerabilities.They pose a serious risk to the security of the package, and immediate action is required to address them.
-        /// </summary>
-        public int Severity { get; set; }
-    }
+    //    /// <summary>
+    //    /// 1. Low: Generally, these are less severe issues, and mitigations might be available without much effort.
+    //    /// 2. Medium: These issues have a moderate impact and might require some attention.It's essential to address them but may not be as urgent as higher-severity issues.
+    //    /// 3. High: High-severity issues are more critical and can have a significant impact on the security of the package.Prompt attention and remediation are usually necessary.
+    //    /// 4. Critical: These are the most severe vulnerabilities.They pose a serious risk to the security of the package, and immediate action is required to address them.
+    //    /// </summary>
+    //    public int Severity { get; set; }
+    //}
 }
