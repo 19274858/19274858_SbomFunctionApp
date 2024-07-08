@@ -6,9 +6,8 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using SbomFunctionApp;
 
-namespace SbomServices
+namespace SbomFunctionApp
 {
     public static class SbomFunction
     {

@@ -154,34 +154,14 @@ namespace SbomFunctionApp
         public string Soup { get; set; }
         public string Author { get; set; }
         public string LicenseType { get; set; }
-        public string LastStableVersion { get; set; }
+
         public string UsedVersion { get; set; }
         public IEnumerable<string> UsedVersionVulnerabilityInfo { get; set; }
+
+        public string LastStableVersion { get; set; }
         public IEnumerable<string> LastStableVersionVulnerabilityInfo { get; set; }
+
         public string Description { get; set; }
         public string ExternalReferences { get; set; }
     }
-
-    //public class PackageVulnerability
-    //{
-    //    public PackageVulnerability(PackageVulnerabilityMetadata packageVulnerabilityMetadata)
-    //    {
-    //        AdvisoryUrl = packageVulnerabilityMetadata.AdvisoryUrl;
-    //        Severity = packageVulnerabilityMetadata.Severity;
-    //    }
-
-    //    public PackageVulnerability()
-    //    {
-
-    //    }
-    //    public Uri AdvisoryUrl { get; set; }
-
-    //    /// <summary>
-    //    /// 1. Low: Generally, these are less severe issues, and mitigations might be available without much effort.
-    //    /// 2. Medium: These issues have a moderate impact and might require some attention.It's essential to address them but may not be as urgent as higher-severity issues.
-    //    /// 3. High: High-severity issues are more critical and can have a significant impact on the security of the package.Prompt attention and remediation are usually necessary.
-    //    /// 4. Critical: These are the most severe vulnerabilities.They pose a serious risk to the security of the package, and immediate action is required to address them.
-    //    /// </summary>
-    //    public int Severity { get; set; }
-    //}
 }
