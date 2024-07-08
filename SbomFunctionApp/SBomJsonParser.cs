@@ -50,10 +50,11 @@ namespace SbomFunctionApp
                 if (sBomComponent is not JObject jObj) continue;
 
                 var soup = jObj.GetValue("name")?.ToString();
-                var version = jObj.GetValue("version")?.ToString();
+                var usedVersion = jObj.GetValue("version")?.ToString();
+                var usedVersionVulnerabilityInfo = GetPackageVulnerabilityInfo(soup, usedVersion, nuGetUrl);
                 var lastVersion = GetLastStableVersion(soup, nuGetUrl);
-                var vulnerabilityInfo = GetPackageVulnerabilityInfo(soup, version, nuGetUrl);
-                
+                var lastStableVersionVulnerabilityInfo = GetPackageVulnerabilityInfo(soup, lastVersion, nuGetUrl);
+
                 sboms[i] = new SBom()
                 {
                     Soup = soup,
@@ -61,7 +62,8 @@ namespace SbomFunctionApp
                     LicenseType = GetLicenseInfo(soup, jObj),
                     LastStableVersion = lastVersion,
                     UsedVersion = jObj.GetValue("version")?.ToString(),
-                    VulnerabilityInfo = vulnerabilityInfo,
+                    UsedVersionVulnerabilityInfo = usedVersionVulnerabilityInfo,
+                    LastStableVersionVulnerabilityInfo = lastStableVersionVulnerabilityInfo,
                     ExternalReferences = GetExternalReferences(jObj),
                     Description = jObj.GetValue("description")?.ToString()
                 };
@@ -154,7 +156,8 @@ namespace SbomFunctionApp
         public string LicenseType { get; set; }
         public string LastStableVersion { get; set; }
         public string UsedVersion { get; set; }
-        public IEnumerable<string> VulnerabilityInfo { get; set; }
+        public IEnumerable<string> UsedVersionVulnerabilityInfo { get; set; }
+        public IEnumerable<string> LastStableVersionVulnerabilityInfo { get; set; }
         public string Description { get; set; }
         public string ExternalReferences { get; set; }
     }
