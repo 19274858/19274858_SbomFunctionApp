@@ -21,7 +21,7 @@ namespace SbomFunctionApp
                 log.LogInformation("C# HTTP trigger function processed a request.");
 
                 var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-                log.LogInformation("Request : \n{requestBody}", requestBody);
+                //log.LogInformation("Request : \n{requestBody}", requestBody);
 
                 var sbomJsonParser = new SBomJsonParser();
                 var sbom = sbomJsonParser.GetVulnerabilityInfo(requestBody);
@@ -32,7 +32,7 @@ namespace SbomFunctionApp
             {
                 log.LogError(ex, "GenerateSbom error");
                 return new BadRequestObjectResult(
-                    "GenerateSbom encountered error while executing your request. Contact development team for support.");
+                    $"GenerateSbom encountered error while executing your request. Contact development team for support. {ex.Message}");
             }
             
         }
