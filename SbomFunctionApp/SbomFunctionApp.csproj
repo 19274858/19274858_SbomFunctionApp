@@ -4,8 +4,8 @@
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.0.1" />
-    <PackageReference Include="NuGet.Protocol" Version="6.10.1" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.4.1" />
+    <PackageReference Include="NuGet.Protocol" Version="6.11.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
