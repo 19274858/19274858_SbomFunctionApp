@@ -8,7 +8,6 @@ using System.Threading;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 
 namespace SbomFunctionApp
 {
@@ -125,7 +124,8 @@ namespace SbomFunctionApp
             {
                 return "No license information found";
             }
-            else if (license.TryGetValue("id", out var licenseId))
+
+            if (license.TryGetValue("id", out var licenseId))
             {
                 return licenseId.ToString();
             }
