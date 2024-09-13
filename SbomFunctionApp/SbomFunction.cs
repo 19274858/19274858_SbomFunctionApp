@@ -24,7 +24,7 @@ namespace SbomFunctionApp
                 //log.LogInformation("Request : \n{requestBody}", requestBody);
 
                 var sbomJsonParser = new SBomJsonParser();
-                var sbom = sbomJsonParser.GetVulnerabilityInfo(requestBody);
+                var sbom = sbomJsonParser.GetVulnerabilityInfo(requestBody, log);
 
                 return new OkObjectResult(sbom);
             }

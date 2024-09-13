@@ -8,6 +8,7 @@ using System.Threading;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 using System.Reflection;
+using Microsoft.Extensions.Logging;
 
 namespace SbomFunctionApp
 {
@@ -15,15 +16,17 @@ namespace SbomFunctionApp
     {
         private const string NuGetUrl = "https://api.nuget.org/v3/index.json";
 
-        internal string GetVulnerabilityInfo(string sbomJsonString)
+        internal string GetVulnerabilityInfo(string sbomJsonString, ILogger log)
         {
+            log.LogTrace("Started GetVulnerabilityInfo");
             var currentLocation = Assembly.GetEntryAssembly()?.Location;
             var currentFolder = Path.GetDirectoryName(currentLocation);
-
+            
             if (string.IsNullOrEmpty(currentFolder))
             {
                 throw new Exception("Unable to get current directory");
             }
+            log.LogTrace($"currentLocation: {currentLocation}, currentFolder: {currentFolder}");
 
             var reader = new SbomJsonReader();
             var sboms = reader.ReadSbomJson(sbomJsonString, NuGetUrl);
