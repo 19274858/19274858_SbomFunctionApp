@@ -19,23 +19,15 @@ namespace SbomFunctionApp
         internal string GetVulnerabilityInfo(string sbomJsonString, ILogger log)
         {
             log.LogTrace("Started GetVulnerabilityInfo");
-            var currentLocation = Assembly.GetEntryAssembly()?.Location;
-            var currentFolder = Path.GetDirectoryName(currentLocation);
-            
-            if (string.IsNullOrEmpty(currentFolder))
-            {
-                throw new Exception("Unable to get current directory");
-            }
-            log.LogTrace($"currentLocation: {currentLocation}, currentFolder: {currentFolder}");
 
-            var reader = new SbomJsonReader();
+            var reader = new SbomJsonReader(log);
             var sboms = reader.ReadSbomJson(sbomJsonString, NuGetUrl);
 
             return JsonSerializer.Serialize(sboms);
         }
     }
    
-    public class SbomJsonReader
+    public class SbomJsonReader(ILogger log)
     {
         public IEnumerable<SBom> ReadSbomJson(string sbomJsonString, string nuGetUrl)
         {
@@ -46,6 +38,7 @@ namespace SbomFunctionApp
 
             for (var i = 0; i < sboms.Length; i++)
             {
+                log.LogTrace($"Processing {i} SBOM component");
                 Console.WriteLine(i);
 
                 var sBomComponent = sBomComponentsArray?[i];
@@ -119,9 +112,13 @@ namespace SbomFunctionApp
         }
         private string GetLicenseInfo(string name, JObject sBomComponent)
         {
+            log.LogTrace($"Starting GetLicenseInfo for {name} component");
             var licenses = sBomComponent.GetValue("licenses") as JArray;
+
             if (licenses != null && (!licenses.Any() || licenses.Count != 1))
+            {
                 throw new Exception($"Unable to parse a license for {name} component");
+            }
 
             if ((licenses?.FirstOrDefault() as JObject)?.GetValue("license") is not JObject license)
             {
