@@ -128,8 +128,10 @@ namespace SbomFunctionApp
 
             log.LogTrace($"licenses: {licenses}");
             var licenseNames = sBomComponent["licenses"]
-                .Select(license => (string)license["license"]["id"])?
+                .Select(license => (string)license["license"]["id"])
+                .Where(id => !string.IsNullOrEmpty(id))?
                 .ToArray();
+            
             if (licenseNames.Any())
             {
                 return string.Join("\n", licenseNames);
@@ -140,9 +142,10 @@ namespace SbomFunctionApp
                 PropertyNameCaseInsensitive = true,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
-
+            
             licenseNames = sBomComponent["licenses"]
-                .Select(license => JsonSerializer.Deserialize<License>(license.ToString(), options)).Select(license=> $"{license.Name}, {license.Url}")
+                .Select(license => JsonSerializer.Deserialize<License>(license["license"].ToString(), options))
+                .Select(license=> $"{license.Name}, {license.Url}")
                 .ToArray();
 
             return string.Join("\n", licenseNames);
