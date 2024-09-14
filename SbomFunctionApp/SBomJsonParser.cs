@@ -1,13 +1,11 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
-using System.Reflection;
 using Microsoft.Extensions.Logging;
 
 namespace SbomFunctionApp
@@ -26,7 +24,7 @@ namespace SbomFunctionApp
             return JsonSerializer.Serialize(sboms);
         }
     }
-   
+
     public class SbomJsonReader(ILogger log)
     {
         public IEnumerable<SBom> ReadSbomJson(string sbomJsonString, string nuGetUrl)
@@ -82,7 +80,7 @@ namespace SbomFunctionApp
 
             // Get the package metadata
             var metadataResource = sourceRepository.GetResource<PackageMetadataResource>();
-            var metadata = metadataResource.GetMetadataAsync(packageName, 
+            var metadata = metadataResource.GetMetadataAsync(packageName,
                 true, true, new SourceCacheContext(), NuGet.Common.NullLogger.Instance, CancellationToken.None).Result;
 
             // Find the latest stable version
@@ -90,60 +88,67 @@ namespace SbomFunctionApp
 
             return latestStableVersion?.Version.ToString();
         }
-        private static IEnumerable<string> GetPackageVulnerabilityInfo(string packageName, string packageVersion, string nuGetUrl)
+
+        private static IEnumerable<string> GetPackageVulnerabilityInfo(string packageName, string packageVersion,
+            string nuGetUrl)
         {
             var nugetRepository = Repository.Factory.GetCoreV3(nuGetUrl);
             var packageMetadataResource = nugetRepository.GetResource<PackageMetadataResource>();
             var metadata = packageMetadataResource
-                .GetMetadataAsync(packageName, true, true, new SourceCacheContext(), NuGet.Common.NullLogger.Instance, CancellationToken.None).Result;
+                .GetMetadataAsync(packageName, true, true, new SourceCacheContext(), NuGet.Common.NullLogger.Instance,
+                    CancellationToken.None).Result;
             var package = metadata.FirstOrDefault(p => p.Identity.Version.ToString() == packageVersion);
 
-            return package?.Vulnerabilities?.Select(x=>x.AdvisoryUrl.ToString());
+            return package?.Vulnerabilities?.Select(x => x.AdvisoryUrl.ToString());
         }
 
         private string GetExternalReferences(JObject sBomComponent)
         {
-            if (sBomComponent.GetValue("externalReferences") is not JArray externalReferences || !externalReferences.Any())
+            if (sBomComponent.GetValue("externalReferences") is not JArray externalReferences ||
+                !externalReferences.Any())
             {
                 return "Unable to parse a ExternalReferences";
             }
+
             var urls = externalReferences.Select(x => (x as JObject)?.GetValue("url")?.ToString()).ToArray();
             return string.Join(", ", urls);
         }
+
         private string GetLicenseInfo(string name, JObject sBomComponent)
         {
             log.LogTrace($"Starting GetLicenseInfo for {name} component");
-            var licenses = sBomComponent.GetValue("licenses") as JArray;
+            log.LogTrace($"{sBomComponent}");
 
-            if (licenses != null && (!licenses.Any() || licenses.Count != 1))
+            var licenses = sBomComponent.GetValue("licenses");
+
+            if (licenses == null)
             {
                 throw new Exception($"Unable to parse a license for {name} component");
             }
 
-            if ((licenses?.FirstOrDefault() as JObject)?.GetValue("license") is not JObject license)
+            log.LogTrace($"licenses: {licenses}");
+            var licenseNames = sBomComponent["licenses"]
+                .Select(license => (string)license["license"]["id"])?
+                .ToArray();
+            if (licenseNames.Any())
             {
-                return "No license information found";
+                return string.Join("\n", licenseNames);
             }
 
-            if (license.TryGetValue("id", out var licenseId))
+            var options = new JsonSerializerOptions
             {
-                return licenseId.ToString();
-            }
-            else
-            {
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true,
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
-                var yourObject = JsonSerializer.Deserialize<License>(license?.ToString() ?? string.Empty, options);
+                PropertyNameCaseInsensitive = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
 
-                return $"{yourObject.Name}, {yourObject.Url}";
-            }
+            licenseNames = sBomComponent["licenses"]
+                .Select(license => JsonSerializer.Deserialize<License>(license.ToString(), options)).Select(license=> $"{license.Name}, {license.Url}")
+                .ToArray();
 
+            return string.Join("\n", licenseNames);
         }
     }
-   
+
     public class License
     {
         public string Name { get; set; }
